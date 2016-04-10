@@ -10,6 +10,13 @@ import javax.swing.JOptionPane;
  *
  * @author anton
  */
+
+/*
+LEMBRETE!
+Nós, também são chamados de paginas;
+Cada Pagina Armazena diversas chaves;
+
+*/
 public class arvore_B {
     //****ATRIBUTOS****//
 
@@ -27,26 +34,30 @@ public class arvore_B {
         this.MIN_CHAVES = Ordem;
         this.MAX_CHAVES = Ordem * 2; //vem da definição: 2d é o limite máximo para o número de chaves em uma página.
     }
+    
     //****METODOS****//
 
-    //Metodo auxiliar para buscarElemento(verifica se o elemento ja está na lista, inserirElemento.
+    //Metodo auxiliar para buscarElemento(verifica se o elemento ja está na lista), inserirElemento.
     private NoB busca(NoB no, int x) {
-        NoB verifica = no;// no serve apenas para inicializar a variavel verifica.
+        NoB verifica = no;// verifica e a arvore esta vazia.
         if (verifica == null) {
             return null;
         } //nao achou o elemento
         else {
             //verifica o proximo elemento
             verifica = verifica.proximo;
+            //continua a verificar outros elementos que sao menores, a partir do valor da raiz.
             while (verifica.proximo != null && verifica.chave < x) {
                 verifica = verifica.proximo;
-            }
+            } 
             if (verifica.chave < x && verifica.pagina != null) {
                 verifica = busca(verifica.pagina, x);
+                
+                //faz a verificação para valores maiores a partir do valor da raiz.
             } else if (verifica.chave > x && verifica.anterior.pagina != null) {
                 verifica = busca(verifica.anterior.pagina, x);
             }
-            return (verifica);
+            return (verifica);//retorna o resultado da busca
         }
     }
 
@@ -106,70 +117,13 @@ public class arvore_B {
         }
     }
 
-    /*========================================================================================*/
-    //Metodo de concatenacao da ArvoreB. Concatena cabecalho com a página seguinte
-    private void cocatenacaoArvoreB(NoB cabecalho) {
-        //Nos temporarios para auxilio na concatenacao
-        NoB temp1;
-        NoB temp2;
-
-        NoB pag1 = cabecalho; //novamente, cabeçalho da página desbalanceada
-        NoB pag2 = pag1.anterior;
-
-        if (pag2.proximo != null) {
-            pag2 = pag2.proximo;
-        }//correcao da posição da página
-        //organizacao de ponteiros
-        pag1 = pag2.anterior;
-        temp2 = pag2.proximo;
-        temp1 = pag1.pagina;
-        pag1.proximo = temp2;
-        if (temp2 != null) {
-            temp2.anterior = pag1;
-        }
-        temp2 = pag2.pagina;
-        temp1.chave = temp1.chave + temp2.chave + 1; //atualizacao do cabecalho
-        while (temp1.proximo != null) {
-            temp1 = temp1.proximo; //vai pro fim da proxima pagina
-        }		//mais organizacao de ponteiros
-        temp1.proximo = pag2;
-        pag2.anterior = temp1;
-        temp2 = temp2.proximo;
-        pag2.proximo = temp2;
-        if (temp2 != null) {
-            temp2.anterior = pag2;
-        }
-        temp2 = pag2.pagina.pagina;
-        pag2.pagina = temp2;
-        pag1 = pag2;
-        while ((pag2 != null) && (pag2.pagina != pag1)) { //busca do cabecalho
-            pag1 = pag2;
-            pag2 = pag2.anterior;
-        }
-        temp1 = pag1;
-        pag1 = pag2;
-        while ((pag2 != null) && (pag2.pagina != pag1)) { //buscando o cabeçalho da página que "perdeu"
-            pag1 = pag2;
-            pag2 = pag2.anterior;
-        }
-        pag1.chave = pag1.chave - 1; //atualizando o cabeçalho da página que perdeu um nó
-        if (temp1.chave > MAX_CHAVES) {
-            cisaoArvoreB(temp1);
-        }
-        if (pag1.chave < MIN_CHAVES && pag1 != raiz) {
-            cocatenacaoArvoreB(pag1); //necessita nova concatenacao
-        } else if (pag1.chave == 0) {
-            raiz = temp1;
-            raiz.anterior = null;
-        }
-    }
 
     /*========================================================================================*/
-    //Metodo principal de insercao que recebe uma chave x e é chamado pelo usuario, faz uma especie de balanceamento da arvore
+    //Metodo principal de insercao que recebe uma chave x e é chamado pelo usuario, faz,tambem, uma especie de balanceamento da arvore
     protected boolean inserirElemento(int x) {
         NoB elem = busca(raiz, x);
         NoB novaPagina;
-        NoB temp;
+        NoB temp; //no auxiliar.
 
         if (elem == null) { //caso seja o primeiro elemento inserido
 
@@ -180,11 +134,14 @@ public class arvore_B {
 
         } else//nao e o primeiro
         {
-            if (elem.chave == x) {
-                return false;//elemento ja existe na arvore
+            if (elem.chave == x) {//verifica se o elemento a ser inserido ja esta na arvore.
+                return false;//elemento ja existe na arvore, nao  pode ser inserido denovo
             } else {
+                //cria um novo nó, em que o elemento x é inserido nesse nó(página).
                 novaPagina = new NoB(x, null, null, null);
-                if (elem.chave < x) { //decide se irá inserir antes ou depois do nó retornado
+                if (elem.chave < x) { /*decide se irá inserir antes ou depois do nó retornado, fazendo uma busca de elemento
+                    a elemento da pagina, verificando a posição que o elemento irá ser inserido, para que a arvore continue ordenada.
+                    */
                     elem.proximo = novaPagina;
                     novaPagina.anterior = elem;
                 } else {
@@ -247,8 +204,8 @@ public class arvore_B {
         System.out.println("**Historico de operações**");
         while (tipodeOperacao != null) {//inicio do loop
             tipodeOperacao = JOptionPane.showInputDialog("Entre com o tipo de operacao"
-                    + " que deseja fazer:\n [1] Busca \n [2] Insercao "
-                    + "\n [3] Impressao");
+                    + " que deseja fazer: \n [1] Insercao "
+                    + "\n [2] Impressao");
             if (tipodeOperacao == null || tipodeOperacao.length() == 0) {
                 return;
             }//entrada vazia - encerra a execução
@@ -261,10 +218,11 @@ public class arvore_B {
             }
             if (testeOperador) {
                 JOptionPane.showMessageDialog(null, "Entrada incorreta (entre com um "
-                        + "numero de 1 a 3)", " Arvore B ", JOptionPane.PLAIN_MESSAGE);
-            } else //IMPRESSAO
+                        + "numero de 1 a 2)", " Arvore B ", JOptionPane.PLAIN_MESSAGE);
+            } else 
+            //IMPRESSAO
             {
-                if (tipodeOperacao.length() == 1 && tipodeOperacao.charAt(0) == '3') {//impressao
+                if (tipodeOperacao.length() == 1 && tipodeOperacao.charAt(0) == '2') {//impressao
                     JOptionPane.showMessageDialog(null, "A arvore atual e': " + exibirArvoreInOrdem(), "Impressao", JOptionPane.PLAIN_MESSAGE); //impressao
                     System.out.println("Impressao da arvore: " + this.exibirArvoreInOrdem());
                 } else {
@@ -285,7 +243,7 @@ public class arvore_B {
                         int x = Integer.parseInt(parametro);
 
                         //INSERCAO
-                        if (tipodeOperacao.length() == 1 && tipodeOperacao.charAt(0) == '2') {//insercao
+                        if (tipodeOperacao.length() == 1 && tipodeOperacao.charAt(0) == '1') {//insercao
                             this.inserirElemento(x);
                             JOptionPane.showMessageDialog(null, "A arvore atual e': " + exibirArvoreInOrdem(), "Impressao", JOptionPane.PLAIN_MESSAGE);
                             System.out.println("Tentativa de insercao de: " + parametro);
